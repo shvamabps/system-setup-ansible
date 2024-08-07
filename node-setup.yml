@@ -32,10 +32,9 @@
   debug:
     msg: "npm version installed: {{ npm_version.stdout }}"
 
-- name: Install Yarn, Typescript And Pnpm using npm
+- name: Install Yarn and Pnpm using npm
   npm:
     name:
       - yarn
-      - typescript
       - pnpm
     global: yes
