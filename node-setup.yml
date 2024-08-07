@@ -1,0 +1,33 @@
+- name: Install prerequisites
+  apt:
+    name:
+      - curl
+      - gnupg
+    state: present
+
+- name: Add NodeSource APT repository for Node.js LTS Version
+  shell: |
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  args:
+    executable: /bin/bash
+
+- name: Install Node.js LTS Version
+  apt:
+    name: nodejs
+    state: present
+
+- name: Verify Node.js installation
+  command: node --version
+  register: node_version
+
+- name: Display Node.js version
+  debug:
+    msg: "Node.js version installed: {{ node_version.stdout }}"
+
+- name: Verify npm installation
+  command: npm --version
+  register: npm_version
+
+- name: Display npm version
+  debug:
+    msg: "npm version installed: {{ npm_version.stdout }}"

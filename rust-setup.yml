@@ -1,0 +1,41 @@
+- name: Ensure curl is installed (required for Rust installation)
+  apt:
+    name: curl
+    state: present
+
+- name: Download Rust installation script
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: "0755"
+
+- name: Install Rust using rustup
+  shell: sh /tmp/rustup-init.sh -y
+  args:
+    executable: /bin/bash
+  environment:
+    CARGO_HOME: "{{ ansible_env.HOME }}/.cargo"
+    RUSTUP_HOME: "{{ ansible_env.HOME }}/.rustup"
+
+- name: Remove Rust installation script
+  file:
+    path: /tmp/rustup-init.sh
+    state: absent
+
+- name: Source Rust environment (optional, for immediate session usage)
+  shell: source ~/.cargo/env && echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+  args:
+    executable: /bin/bash
+  changed_when: false # This task does not change anything
+
+- name: Ensure ~/.cargo/bin is in the PATH for the current session
+  shell: |
+    export PATH="$HOME/.cargo/bin:$PATH"
+    rustc --version
+  args:
+    executable: /bin/bash
+  register: rust_version
+
+- name: Display Rust version
+  debug:
+    msg: "Rust version installed: {{ rust_version.stdout }}"

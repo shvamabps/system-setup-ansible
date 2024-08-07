@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    user_name: '{{ lookup("env", "USER") }}'
+    source_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+    dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+    personal: "{{ lookup('env', 'HOME') }}/personal"
+  pre_tasks:
+    - name: Update Apt
+      become: true
+      ansible.builtin.apt:
+        force_apt_get: true
+        update_cache: true
+        state: present
+      tags:
+        - install
+        - core
+  tasks:
+    - ansible.builtin.include_tasks: core-setup.yml
+    - ansible.builtin.include_tasks: rust-setup.yml
+    - ansible.builtin.include_tasks: docker-k8s.yml
+    - ansible.builtin.include_tasks: node-setup.yml
