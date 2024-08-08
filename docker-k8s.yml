@@ -1,3 +1,4 @@
+---
 - name: Update the apt package index
   apt:
     update_cache: yes
@@ -7,6 +8,8 @@
     name:
       - ca-certificates
       - curl
+      - apt-transport-https
+      - software-properties-common
     state: present
 
 - name: Create the /etc/apt/keyrings directory
@@ -42,7 +45,7 @@
 - name: Add the user to the docker group
   user:
     name: "{{ user_name }}"
-    groups: root
+    groups: docker
     append: yes
 
 - name: Add the user to the root group
@@ -50,3 +53,42 @@
     name: "{{ user_name }}"
     groups: root
     append: yes
+
+- name: Install kubectl
+  shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    install -o "{{ user_name }}" -g "{{ user_name }}" -m 0755 kubectl /usr/local/bin/kubectl
+
+- name: Install Minikube
+  shell: |
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    install -o "{{ user_name }}" -g "{{ user_name }}" -m 0755 minikube-linux-amd64 /usr/local/bin/minikube
+
+- name: Add the user to the docker group (for Minikube)
+  user:
+    name: "{{ user_name }}"
+    groups: docker
+    append: yes
+
+- name: Ensure Minikube permissions
+  file:
+    path: /usr/local/bin/minikube
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0755"
+
+- name: Ensure kubectl permissions
+  file:
+    path: /usr/local/bin/kubectl
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0755"
+
+- name: Verify Docker installation
+  command: docker --version
+
+- name: Verify kubectl installation
+  command: kubectl version --client
+
+- name: Verify Minikube installation
+  command: minikube version
