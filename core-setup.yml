@@ -19,12 +19,10 @@
   apt:
     name:
       [
-        "compton",
         "curl",
         "htop",
         "lsof",
         "python3-pip",
-        "ubuntu-mate-desktop",
         "git",
         "gcc",
         "g++",
